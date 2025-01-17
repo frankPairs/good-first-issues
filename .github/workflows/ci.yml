@@ -1,0 +1,50 @@
+name: Server code analysis and testing
+
+on:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -y | sh
+
+      - name: Run rust linter
+        run: cd server && cargo clippy -- -D warnings
+
+  formatting:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -y | sh
+
+      - name: Run formatter check
+        run: cd server && cargo fmt --all -- --check
+
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        run: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs -y | sh
+
+      - name: Run Unit tests
+        run: cd server && cargo test
+
+
+
+     
+
+

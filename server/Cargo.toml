@@ -1,0 +1,45 @@
+[package]
+name = "api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.95"
+axum = { version = "0.7.9", features = ["tracing"] }
+dotenv = "0.15.0"
+secrecy = { version = "0.8.0", features = ["serde"] }
+serde = { version = "1.0.217", features = ["derive"] }
+serde_json = "1.0.134"
+tokio = { version = "1.35.1", features = ["full"] }
+tracing = "0.1.37"
+tracing-bunyan-formatter = "0.3.9"
+tracing-log = "0.2.0"
+tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
+tower = "0.5.1"
+tower-http = { version = "0.5.0", features = ["cors"] }
+reqwest = { version = "0.12.2", features = ["json"] }
+url = "2.5.0"
+chrono = "0.4.35"
+redis = { version = "0.27.5", features = ["tokio-comp", "json"] }
+bb8-redis = "0.17.0"
+bb8 = "0.8.6"
+redis-macros = "0.4.0"
+futures-util = "0.3.30"
+itertools = "0.14.0"
+http-body-util = "0.1.2"
+
+
+[lints.clippy]
+single_match = "warn"
+single_match_else = "warn"
+needless_match = "warn"
+needless_late_init = "warn"
+redundant_pattern_matching = "warn"
+redundant_pattern = "warn"
+redundant_guards = "warn"
+collapsible_match = "warn"
+match_single_binding = "warn"
+match_same_arms = "warn"
+match_ref_pats = "warn"
+match_bool = "warn"
+needless_bool = "deny"
