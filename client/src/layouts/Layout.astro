@@ -1,3 +1,7 @@
+---
+import Header from "../components/Header.astro";
+---
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -7,16 +11,50 @@
     <meta name="generator" content={Astro.generator} />
     <title>Good First Issues</title>
   </head>
+
   <body>
+    <Header />
+
     <slot />
   </body>
 </html>
 
 <style is:global>
   :root {
-    --color-black: #060506;
-
     --header-height: 100px;
+
+    --spacing-60: 3.75rem;
+    --spacing-40: 2.5rem;
+    --spacing-30: 1.875rem;
+    --spacing-24: 1.5rem;
+    --spacing-20: 1.25rem;
+    --spacing-18: 1.125rem;
+    --spacing-16: 1rem;
+    --spacing-14: 0.875rem;
+    --spacing-12: 0.75rem;
+    --spacing-10: 0.625rem;
+    --spacing-8: 0.5rem;
+
+    --font-size-90: 5.625rem;
+    --font-size-70: 4.375rem;
+    --font-size-60: 3.75rem;
+    --font-size-50: 3.125rem;
+    --font-size-40: 2.5rem;
+    --font-size-30: 1.875rem;
+    --font-size-24: 1.5rem;
+    --font-size-20: 1.25rem;
+    --font-size-18: 1.125rem;
+    --font-size-16: 1rem;
+    --font-size-14: 0.875rem;
+    --font-size-12: 0.75rem;
+    --font-size-10: 0.625rem;
+
+    --radius-8: 0.5rem;
+    --radius-20: 1.25rem;
+
+    --color-black: 6, 5, 6;
+    --color-white: 255, 255, 255;
+    --color-bg-gray: 217, 217, 217;
   }
 
   @font-face {
@@ -46,6 +84,165 @@
   }
 
   body {
-    background-color: var(--color-black);
+    background-color: rgba(var(--color-black), 1);
+    max-width: 1200px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  span,
+  applet,
+  object,
+  iframe,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  blockquote,
+  pre,
+  a,
+  abbr,
+  acronym,
+  address,
+  big,
+  cite,
+  code,
+  del,
+  dfn,
+  em,
+  img,
+  ins,
+  kbd,
+  q,
+  s,
+  samp,
+  small,
+  strike,
+  strong,
+  sub,
+  sup,
+  tt,
+  var,
+  b,
+  u,
+  i,
+  center,
+  dl,
+  dt,
+  dd,
+  ol,
+  ul,
+  li,
+  fieldset,
+  form,
+  label,
+  legend,
+  table,
+  caption,
+  tbody,
+  tfoot,
+  thead,
+  tr,
+  th,
+  td,
+  article,
+  aside,
+  canvas,
+  details,
+  embed,
+  figure,
+  figcaption,
+  footer,
+  header,
+  hgroup,
+  menu,
+  nav,
+  output,
+  ruby,
+  section,
+  summary,
+  time,
+  mark,
+  audio,
+  video {
+    margin: 0;
+    margin-block-end: 0;
+    margin-block-start: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: baseline;
+  }
+  /* HTML5 display-role reset for older browsers */
+  article,
+  aside,
+  details,
+  figcaption,
+  figure,
+  footer,
+  header,
+  hgroup,
+  menu,
+  nav,
+  section {
+    display: block;
+  }
+  ol,
+  ul {
+    list-style: none;
+  }
+  blockquote,
+  q {
+    quotes: none;
+  }
+  blockquote:before,
+  blockquote:after,
+  q:before,
+  q:after {
+    content: "";
+    content: none;
+  }
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  .section {
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    height: auto;
+    box-sizing: border-box;
+    padding: var(--spacing-60) calc(var(--spacing-60) * 2);
+  }
+
+  /* SMALL LAPTOPS AND TABLETS */
+  @media screen and (max-width: 1024px) {
+    .section {
+      padding: var(--spacing-60);
+    }
+  }
+
+  /* Mobile */
+  @media screen and (max-width: 480px) {
+    .section {
+      padding: var(--spacing-60) var(--spacing-20);
+    }
+  }
+
+  /**
+  * Disable smooth scrolling when users have prefers-reduced-motion enabled
+  */
+  @media screen and (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
   }
 </style>

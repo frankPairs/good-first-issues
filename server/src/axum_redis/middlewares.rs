@@ -31,11 +31,15 @@ pub async fn redis_cache_middleware<RedisCacheResponseValue>(
 where
     RedisCacheResponseValue: DeserializeOwned + FromRedisValue + Serialize + Debug + Send + Sync,
 {
-    let mut redis_conn = state
-        .redis_pool
-        .get()
-        .await
-        .map_err(RustGoodFirstIssuesError::RedisConnection)?;
+    let redis_conn_result = state.redis_pool.get().await;
+
+    if redis_conn_result.is_err() {
+        let res = next.run(request).await;
+
+        return Ok(res);
+    }
+
+    let mut redis_conn = redis_conn_result.unwrap();
 
     if redis_conn.exists(&redis_key).await.unwrap_or(false) {
         let redis_response_builder = RedisResponseBuilder::new(redis_conn, &redis_key);

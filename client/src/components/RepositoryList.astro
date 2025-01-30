@@ -1,0 +1,149 @@
+---
+import ProgrammingLanguageFilter from "./ProgrammingLanguageFilter.astro";
+---
+
+<div class="wrap">
+  <ProgrammingLanguageFilter />
+
+  <repository-list></repository-list>
+</div>
+
+<style>
+  .wrap {
+    display: grid;
+    gap: var(--spacing-40);
+    padding-bottom: var(--spacing-40);
+  }
+</style>
+
+<script>
+  import { html, css, LitElement } from "lit";
+  import { customElement, state, property } from "lit/decorators.js";
+  import { cleanStores, subscribeKeys } from "nanostores";
+
+  import { $repositoriesStore } from "../stores/repositories";
+  import { getGithubRepositories } from "../requests/repositories";
+
+  @customElement("repository-card")
+  export class RepositoryCard extends LitElement {
+    static styles = css`
+      article {
+        cursor: pointer;
+        border: 1px solid rgba(var(--color-white), 0.2);
+        border-radius: var(--radius-20);
+        background-color: rgba(var(--color-bg-gray), 0.05);
+        padding: var(--spacing-20);
+        transition: ease-in-out border-color 300ms;
+        transition: ease-in-out background-color 300ms;
+      }
+
+      article:hover {
+        border-color: rgba(var(--color-white), 0.5);
+        background-color: rgba(var(--color-bg-gray), 0.1);
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-24);
+        height: var(--spacing-40);
+      }
+
+      img {
+        border-radius: 50%;
+        height: var(--spacing-40);
+        width: auto;
+      }
+
+      .title {
+        color: rgba(var(--color-white), 0.7);
+        font-size: var(--font-size-24);
+      }
+    `;
+
+    @property({ type: String })
+    name: string = "";
+
+    @property({ type: String })
+    avatarUrl: string = "";
+
+    render() {
+      return html`
+        <article>
+          <header>
+            <img src="${this.avatarUrl}" alt="${this.name}" />
+            <h2 class="title">${this.name}</h2>
+          </header>
+        </article>
+      `;
+    }
+  }
+
+  @customElement("repository-list")
+  export class RepositoryList extends LitElement {
+    static styles = css`
+      section {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-40);
+      }
+    `;
+
+    @state()
+    private repositoriesStore = $repositoriesStore.get();
+
+    @state()
+    private loading = false;
+
+    @state()
+    private error: Error | null = null;
+
+    connectedCallback() {
+      super.connectedCallback();
+
+      // Subscribe to the language filter changes. When the language filter changes, we fetch Github repositories.
+      subscribeKeys($repositoriesStore, ["filters.language"], async (value) => {
+        this.loading = true;
+
+        try {
+          const result = await getGithubRepositories({
+            language: value.filters.language,
+          });
+
+          $repositoriesStore.setKey("result", result);
+        } catch (error) {
+          this.error = error as Error;
+        } finally {
+          this.loading = false;
+        }
+      });
+
+      subscribeKeys($repositoriesStore, ["result"], (value) => {
+        this.repositoriesStore = value;
+      });
+    }
+
+    disconnectedCallback() {
+      cleanStores($repositoriesStore);
+    }
+
+    render() {
+      if (this.loading) {
+        return html` <p>Loading...</p> `;
+      }
+
+      return html`
+        <section>
+          ${this.repositoriesStore.result.repositories.map((repository) => {
+            return html`
+              <repository-card
+                name="${repository.name}"
+                avatarUrl="${repository.avatarUrl}"
+              ></repository-card>
+            `;
+          })}
+        </section>
+      `;
+    }
+  }
+</script>
