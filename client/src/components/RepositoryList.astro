@@ -27,12 +27,22 @@ import ProgrammingLanguageFilter from "./ProgrammingLanguageFilter.astro";
   @customElement("repository-card")
   export class RepositoryCard extends LitElement {
     static styles = css`
+      p,
+      h2 {
+        margin: 0;
+      }
+
+      a {
+        text-decoration: none;
+      }
+
       article {
         cursor: pointer;
         border: 1px solid rgba(var(--color-white), 0.2);
         border-radius: var(--radius-20);
+        box-sizing: border-box;
         background-color: rgba(var(--color-bg-gray), 0.05);
-        padding: var(--spacing-20);
+        height: 100%;
         transition: ease-in-out border-color 300ms;
         transition: ease-in-out background-color 300ms;
       }
@@ -43,10 +53,24 @@ import ProgrammingLanguageFilter from "./ProgrammingLanguageFilter.astro";
       }
 
       header {
+        border-bottom: 1px solid rgba(var(--color-white), 0.3);
+      }
+
+      header .content {
         display: flex;
         align-items: center;
         gap: var(--spacing-24);
-        height: var(--spacing-40);
+        padding: var(--spacing-24) var(--spacing-24);
+      }
+
+      .content {
+        display: flex;
+        padding: var(--spacing-24) var(--spacing-24);
+      }
+
+      .content .description {
+        font-size: var(--font-size-20);
+        color: rgba(var(--color-white), 0.6);
       }
 
       img {
@@ -58,6 +82,11 @@ import ProgrammingLanguageFilter from "./ProgrammingLanguageFilter.astro";
       .title {
         color: rgba(var(--color-white), 0.7);
         font-size: var(--font-size-24);
+        transition: ease-in-out color 300ms;
+      }
+
+      .title:hover {
+        color: rgba(var(--color-white), 1);
       }
     `;
 
@@ -67,13 +96,27 @@ import ProgrammingLanguageFilter from "./ProgrammingLanguageFilter.astro";
     @property({ type: String })
     avatarUrl: string = "";
 
+    @property({ type: String })
+    description: string = "";
+
+    @property({ type: String })
+    url: string = "";
+
     render() {
       return html`
         <article>
           <header>
-            <img src="${this.avatarUrl}" alt="${this.name}" />
-            <h2 class="title">${this.name}</h2>
+            <div class="content">
+              <img src="${this.avatarUrl}" alt="${this.name}" />
+              <a href="${this.url}" target="_blank" rel="noopener noreferrer">
+                <h2 class="title">${this.name}</h2>
+              </a>
+            </div>
           </header>
+
+          <div class="content">
+            <p class="description">${this.description}</p>
+          </div>
         </article>
       `;
     }
@@ -84,6 +127,7 @@ import ProgrammingLanguageFilter from "./ProgrammingLanguageFilter.astro";
     static styles = css`
       section {
         display: grid;
+        box-sizing: border-box;
         grid-template-columns: repeat(2, 1fr);
         gap: var(--spacing-40);
       }
@@ -139,6 +183,8 @@ import ProgrammingLanguageFilter from "./ProgrammingLanguageFilter.astro";
               <repository-card
                 name="${repository.name}"
                 avatarUrl="${repository.avatarUrl}"
+                description="${repository.description}"
+                url="${repository.url}"
               ></repository-card>
             `;
           })}
