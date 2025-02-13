@@ -2,14 +2,14 @@ import type { GetGithubRepositoryResponseAPI, GetGithubRepositoriesParams, GetGi
 
 const GITHUB_DEAFULT_PER_PAGE = 50
 
-export async function getGithubRepositories(params: GetGithubRepositoriesParams): Promise<GetGithubRepositoriesResponse> {
+export async function getGithubRepositories(params: GetGithubRepositoriesParams, opts?: RequestInit): Promise<GetGithubRepositoriesResponse> {
   const url = new URL("http://localhost:5000/api/v1/github/repositories")
 
   url.searchParams.append("language", params.language)
   url.searchParams.append("page", String(params.page ?? 1))
   url.searchParams.append("per_page", String(params.perPage ?? GITHUB_DEAFULT_PER_PAGE))
   
-  const res = await fetch(url.toString())
+  const res = await fetch(url.toString(), opts)
   const json: GetGithubRepositoryResponseAPI = await res.json();
 
   return {
