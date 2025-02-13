@@ -6,15 +6,14 @@ use tower_http::cors::{Any, CorsLayer};
 
 use crate::{
     config::Settings, github::router::GithubRepositoryRouter,
-    health_check::router::HealthCheckRouter, state::AppState,
+    health_check::router::HealthCheckRouter,
+    programing_languages::router::ProgrammingLanguageRouter, state::AppState,
 };
 
 const REDIS_POOL_CONNECTION_TIMEOUT: u64 = 10;
 
 pub struct App {
     pub router: Router,
-    #[allow(dead_code)]
-    pub state: Arc<AppState>,
 }
 
 impl App {
@@ -26,7 +25,8 @@ impl App {
         let redis_pool = bb8::Pool::builder()
             .connection_timeout(Duration::from_secs(REDIS_POOL_CONNECTION_TIMEOUT))
             .build(redis_manager)
-            .await?;
+            .await
+            .expect("Failed to create Redis connection pool");
 
         let state = Arc::new(AppState {
             github_settings,
@@ -34,13 +34,17 @@ impl App {
         });
         let router = Router::new()
             .nest("/", HealthCheckRouter::build())
-            .layer(CorsLayer::new().allow_origin(Any))
             .nest(
                 "/api/v1/github",
                 GithubRepositoryRouter::build(state.clone()),
             )
-            .with_state(state.clone());
+            .nest(
+                "/api/v1/programming-languages",
+                ProgrammingLanguageRouter::build(),
+            )
+            .with_state(state.clone())
+            .layer(CorsLayer::new().allow_origin(Any));
 
-        Ok(App { router, state })
+        Ok(App { router })
     }
 }

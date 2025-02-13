@@ -1,0 +1,254 @@
+---
+import ProgrammingLanguageFilter from "./ProgrammingLanguageFilter.astro";
+---
+
+<div class="container">
+  <ProgrammingLanguageFilter />
+
+  <repository-list></repository-list>
+</div>
+
+<style>
+  .container {
+    display: grid;
+    gap: var(--spacing-40);
+    padding-bottom: var(--spacing-40);
+  }
+</style>
+
+<script>
+  import { html, css, LitElement } from "lit";
+  import { customElement, state, property } from "lit/decorators.js";
+  import { cleanStores, subscribeKeys } from "nanostores";
+
+  import { $repositoriesStore } from "../stores/repositories";
+  import { getGithubRepositories } from "../requests/repositories";
+
+  @customElement("repository-card")
+  export class RepositoryCard extends LitElement {
+    static styles = css`
+      p,
+      h2 {
+        margin: 0;
+      }
+
+      a {
+        text-decoration: none;
+      }
+
+      article {
+        cursor: pointer;
+        border: 1px solid rgba(var(--color-white), 0.2);
+        border-radius: var(--radius-20);
+        box-sizing: border-box;
+        background-color: rgba(var(--color-bg-gray), 0.05);
+        transition: ease-in-out border-color 300ms;
+        transition: ease-in-out background-color 300ms;
+        width: 750px;
+        justify-self: center;
+      }
+
+      article:hover {
+        border-color: rgba(var(--color-white), 0.5);
+        background-color: rgba(var(--color-bg-gray), 0.1);
+      }
+
+      header {
+        border-bottom: 1px solid rgba(var(--color-white), 0.3);
+      }
+
+      header .content {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-24);
+        padding: var(--spacing-24);
+      }
+
+      .content {
+        display: flex;
+        padding: var(--spacing-40) var(--spacing-24);
+      }
+
+      .content .description {
+        font-size: var(--font-size-20);
+        color: rgba(var(--color-white), 0.6);
+      }
+
+      img {
+        border-radius: 50%;
+        height: var(--spacing-40);
+        width: auto;
+      }
+
+      .title {
+        color: rgba(var(--color-white), 0.7);
+        font-size: var(--font-size-24);
+        transition: ease-in-out color 300ms;
+      }
+
+      .title:hover {
+        color: rgba(var(--color-white), 1);
+      }
+
+      footer {
+        border-top: 1px solid rgba(var(--color-white), 0.3);
+      }
+
+      footer .content {
+        align-items: center;
+        gap: var(--spacing-24);
+        display: flex;
+        padding: var(--spacing-24);
+        justify-content: flex-start;
+      }
+
+      footer .info-wrapper {
+        flex-direction: row;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-8);
+      }
+
+      footer .info-wrapper .text {
+        color: rgba(var(--color-white), 0.7);
+      }
+
+      footer .info-wrapper .icon {
+        fill: rgba(var(--color-white), 1);
+        width: 24px;
+        height: 24px;
+      }
+    `;
+
+    @property({ type: String })
+    name: string = "";
+
+    @property({ type: String })
+    avatarUrl: string = "";
+
+    @property({ type: String })
+    description: string = "";
+
+    @property({ type: String })
+    url: string = "";
+
+    @property({ type: Number })
+    starsCount: number = 0;
+
+    @property({ type: Number })
+    openIssuesCount: number = 0;
+
+    render() {
+      return html`
+        <article>
+          <header>
+            <div class="content">
+              <img src="${this.avatarUrl}" alt="${this.name}" />
+              <a href="${this.url}" target="_blank" rel="noopener noreferrer">
+                <h2 class="title">${this.name}</h2>
+              </a>
+            </div>
+          </header>
+
+          <div class="content">
+            <p class="description">${this.description}</p>
+          </div>
+
+          <footer>
+            <div class="content"> 
+                <div class="info-wrapper">
+                  <svg class="icon" height="16" viewBox="0 0 16 16" width="16" title="Stars">
+    <path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.751.751 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Zm0 2.445L6.615 5.5a.75.75 0 0 1-.564.41l-3.097.45 2.24 2.184a.75.75 0 0 1 .216.664l-.528 3.084 2.769-1.456a.75.75 0 0 1 .698 0l2.77 1.456-.53-3.084a.75.75 0 0 1 .216-.664l2.24-2.183-3.096-.45a.75.75 0 0 1-.564-.41L8 2.694Z"></path>
+</svg>
+
+                  <p class="text">${this.starsCount}</o>
+                </div>  
+
+                <div class="info-wrapper">
+                  <svg class="icon" height="16" viewBox="0 0 16 16" title="Issues">
+    <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"></path><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0ZM1.5 8a6.5 6.5 0 1 0 13 0 6.5 6.5 0 0 0-13 0Z"></path>
+</svg>
+
+                  <p class="text">${this.openIssuesCount}</o>
+                </div> 
+            </div>
+           
+          </footer>
+        </article>
+      `;
+    }
+  }
+
+  @customElement("repository-list")
+  export class RepositoryList extends LitElement {
+    static styles = css`
+      section {
+        display: grid;
+        box-sizing: border-box;
+        grid-template-columns: repeat(1, 1fr);
+        gap: var(--spacing-40);
+      }
+    `;
+
+    @state()
+    private repositoriesStore = $repositoriesStore.get();
+
+    @state()
+    private loading = false;
+
+    @state()
+    private error: Error | null = null;
+
+    connectedCallback() {
+      super.connectedCallback();
+
+      // Subscribe to the language filter changes. When the language filter changes, we fetch Github repositories.
+      subscribeKeys($repositoriesStore, ["filters.language"], async (value) => {
+        this.loading = true;
+
+        try {
+          const result = await getGithubRepositories({
+            language: value.filters.language,
+          });
+
+          $repositoriesStore.setKey("result", result);
+        } catch (error) {
+          this.error = error as Error;
+        } finally {
+          this.loading = false;
+        }
+      });
+
+      subscribeKeys($repositoriesStore, ["result"], (value) => {
+        this.repositoriesStore = value;
+      });
+    }
+
+    disconnectedCallback() {
+      cleanStores($repositoriesStore);
+    }
+
+    render() {
+      if (this.loading) {
+        return html` <p>Loading...</p> `;
+      }
+
+      return html`
+        <section>
+          ${this.repositoriesStore.result.repositories.map((repository) => {
+            return html`
+              <repository-card
+                name="${repository.name}"
+                avatarUrl="${repository.avatarUrl}"
+                description="${repository.description}"
+                url="${repository.url}"
+                starsCount="${repository.starsCount}"
+                openIssuesCount="${repository.openIssuesCount}"
+              ></repository-card>
+            `;
+          })}
+        </section>
+      `;
+    }
+  }
+</script>

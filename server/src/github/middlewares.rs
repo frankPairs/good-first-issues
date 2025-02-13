@@ -22,11 +22,13 @@ pub async fn rate_limit_middleware(
     request: Request,
     next: Next,
 ) -> Result<Response, RustGoodFirstIssuesError> {
-    let mut redis_conn = state
-        .redis_pool
-        .get()
-        .await
-        .map_err(RustGoodFirstIssuesError::RedisConnection)?;
+    let redis_conn_result = state.redis_pool.get().await;
+
+    if redis_conn_result.is_err() {
+        let res = next.run(request).await;
+
+        return Ok(res);
+    }
 
     let formatted_path = original_uri
         .path()
@@ -36,6 +38,7 @@ pub async fn rate_limit_middleware(
     // To build the Redis key of any rate limit error, we just use the url path, without taking into account
     // query or route params. This is because a rate limit error is
     let redis_key = format!("errors:rate_limit:{}", formatted_path);
+    let mut redis_conn = redis_conn_result.unwrap();
 
     // If a request with the same URI already exists on Redis, we just return a 429 error
     if redis_conn.exists(&redis_key).await.unwrap_or(false) {
