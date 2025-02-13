@@ -15,10 +15,6 @@ impl ProgramingLanguageRepository {
                     name: ProgrammingLanguage::Rust.to_string(),
                 },
                 ProgrammingLanguageResponse {
-                    id: ProgrammingLanguage::Java,
-                    name: ProgrammingLanguage::Java.to_string(),
-                },
-                ProgrammingLanguageResponse {
                     id: ProgrammingLanguage::Javascript,
                     name: ProgrammingLanguage::Javascript.to_string(),
                 },
@@ -33,6 +29,10 @@ impl ProgramingLanguageRepository {
                 ProgrammingLanguageResponse {
                     id: ProgrammingLanguage::Ruby,
                     name: ProgrammingLanguage::Ruby.to_string(),
+                },
+                ProgrammingLanguageResponse {
+                    id: ProgrammingLanguage::Java,
+                    name: ProgrammingLanguage::Java.to_string(),
                 },
             ],
         }
