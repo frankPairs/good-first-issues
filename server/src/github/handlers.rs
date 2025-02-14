@@ -24,7 +24,7 @@ pub async fn get_repositories(
     let params = params.0;
     let github_client = GithubHttpClient::new(state.github_settings.clone())?;
 
-    let res = github_client.get_rust_repositories(&params).await?;
+    let res = github_client.get_repositories(&params).await?;
 
     return Ok((StatusCode::OK, Json(res)).into_response());
 }

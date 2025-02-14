@@ -50,8 +50,8 @@ impl GithubHttpClient {
         })
     }
 
-    #[tracing::instrument(name = "Get Rust repositories from Github API", skip(self))]
-    pub async fn get_rust_repositories(
+    #[tracing::instrument(name = "Getrepositories from Github API", skip(self))]
+    pub async fn get_repositories(
         &self,
         params: &GetGithubRepositoriesParams,
     ) -> Result<GetGithubRepositoriesResponse, RustGoodFirstIssuesError> {
@@ -61,7 +61,10 @@ impl GithubHttpClient {
             .map_err(RustGoodFirstIssuesError::ParseUrl)?;
 
         url.query_pairs_mut()
-            .append_pair("q", format!("language:{}", params.language).as_str())
+            .append_pair(
+                "q",
+                format!("language:{} good-first-issues:>1", params.language).as_str(),
+            )
             .append_pair("sort", "help-wanted-issues")
             .append_pair("order", "desc")
             .append_pair(
