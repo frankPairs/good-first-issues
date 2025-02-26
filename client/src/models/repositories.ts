@@ -1,8 +1,21 @@
-export interface GetGithubRepositoriesParams {
+import type { ProgrammingLanguageID } from "./programmingLanguages"
+
+export interface GetGithubRepositoriesAPIParams {
   page?: number
   perPage?: number
   language: string
 }
+
+export interface GetGithubRepositoriesParams {
+  filters: {
+    language: ProgrammingLanguageID
+  },
+  pagination: {
+    page: number
+    perPage: number
+  }
+}
+
 
 export interface GithubRepositoryAPI {
   id: number,

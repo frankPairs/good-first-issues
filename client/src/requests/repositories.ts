@@ -1,8 +1,8 @@
-import type { GetGithubRepositoryResponseAPI, GetGithubRepositoriesParams, GetGithubRepositoriesResponse } from "../models/repositories"
+import type { GetGithubRepositoryResponseAPI, GetGithubRepositoriesAPIParams, GetGithubRepositoriesResponse } from "../models/repositories"
 
 const GITHUB_DEAFULT_PER_PAGE = 50
 
-export async function getGithubRepositories(params: GetGithubRepositoriesParams, opts?: RequestInit): Promise<GetGithubRepositoriesResponse> {
+export async function getGithubRepositories(params: GetGithubRepositoriesAPIParams, opts?: RequestInit): Promise<GetGithubRepositoriesResponse> {
   const url = new URL("http://localhost:5000/api/v1/github/repositories")
 
   url.searchParams.append("language", params.language)
