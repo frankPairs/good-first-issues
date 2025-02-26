@@ -65,7 +65,7 @@ impl GithubHttpClient {
                 "q",
                 format!("language:{} good-first-issues:>1", params.language).as_str(),
             )
-            .append_pair("sort", "help-wanted-issues")
+            .append_pair("sort", "updated")
             .append_pair("order", "desc")
             .append_pair(
                 "per_page",

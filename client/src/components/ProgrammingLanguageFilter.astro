@@ -70,7 +70,7 @@ const programmingLanguages = await getProgrammingLanguages();
 
 <script>
   import { subscribeKeys } from "nanostores";
-  import { $repositoriesStore } from "../stores/repositories";
+  import { $repositoriesParamsStore } from "../stores/repositories";
   import type { ProgrammingLanguageID } from "../models/programmingLanguages";
 
   const languageListEl = document.querySelector("ul");
@@ -79,14 +79,14 @@ const programmingLanguages = await getProgrammingLanguages();
   languageListEl?.addEventListener("change", (event) => {
     const inputEl = event.target as HTMLInputElement;
 
-    $repositoriesStore.setKey(
+    $repositoriesParamsStore.setKey(
       "filters.language",
       inputEl.value as ProgrammingLanguageID
     );
   });
 
   // Listen for changes in the language filter. When the filter changes, update the radio checked state
-  subscribeKeys($repositoriesStore, ["filters.language"], (value) => {
+  subscribeKeys($repositoriesParamsStore, ["filters.language"], (value) => {
     const selectedLanguageEl = languageListEl?.querySelector<HTMLInputElement>(
       `input[value="${value.filters.language}"]`
     );
