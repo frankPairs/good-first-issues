@@ -81,14 +81,14 @@ const programmingLanguages = await getProgrammingLanguages();
 
     $repositoriesParamsStore.setKey(
       "filters.language",
-      inputEl.value as ProgrammingLanguageID
+      inputEl.value as ProgrammingLanguageID,
     );
   });
 
   // Listen for changes in the language filter. When the filter changes, update the radio checked state
   subscribeKeys($repositoriesParamsStore, ["filters.language"], (value) => {
     const selectedLanguageEl = languageListEl?.querySelector<HTMLInputElement>(
-      `input[value="${value.filters.language}"]`
+      `input[value="${value.filters.language}"]`,
     );
 
     if (selectedLanguageEl) {

@@ -4,6 +4,6 @@
   "exclude": ["dist"],
   "compilerOptions": {
     "experimentalDecorators": true,
-    "useDefineForClassFields": false,
+    "useDefineForClassFields": false
   }
 }

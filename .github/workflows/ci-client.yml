@@ -1,0 +1,41 @@
+name: Client code analysis and testing
+
+on:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        working-directory: ./client
+        run: npm ci
+
+      - name: Run eslint
+        working-directory: ./client
+        run: npm run lint
+
+  formatting:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        working-directory: ./client
+        run: npm ci
+
+      - name: Run formatter check
+        working-directory: ./client
+        run: npm run formatting
+
+
+
+     
+
+

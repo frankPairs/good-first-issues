@@ -1,17 +1,17 @@
-import { deepMap, type BaseDeepMap} from "nanostores"
-import type { GetGithubRepositoriesParams } from "../models/repositories"
+import { deepMap, type BaseDeepMap } from "nanostores";
+import type { GetGithubRepositoriesParams } from "../models/repositories";
 
 type RepositoriesParamsStore = GetGithubRepositoriesParams & BaseDeepMap;
 
 export const initialState: RepositoriesParamsStore = {
   filters: {
-    language: "rust"
+    language: "rust",
   },
   pagination: {
     page: 0,
-    perPage: 50
-  }
-}
+    perPage: 50,
+  },
+};
 
-export const $repositoriesParamsStore = deepMap<RepositoriesParamsStore>(initialState)
-
+export const $repositoriesParamsStore =
+  deepMap<RepositoriesParamsStore>(initialState);
