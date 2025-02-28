@@ -1,15 +1,25 @@
-import type { GetGithubRepositoryResponseAPI, GetGithubRepositoriesAPIParams, GetGithubRepositoriesResponse } from "../models/repositories"
+import type {
+  GetGithubRepositoryResponseAPI,
+  GetGithubRepositoriesAPIParams,
+  GetGithubRepositoriesResponse,
+} from "../models/repositories";
 
-const GITHUB_DEAFULT_PER_PAGE = 50
+const GITHUB_DEAFULT_PER_PAGE = 50;
 
-export async function getGithubRepositories(params: GetGithubRepositoriesAPIParams, opts?: RequestInit): Promise<GetGithubRepositoriesResponse> {
-  const url = new URL("http://localhost:5000/api/v1/github/repositories")
+export async function getGithubRepositories(
+  params: GetGithubRepositoriesAPIParams,
+  opts?: RequestInit,
+): Promise<GetGithubRepositoriesResponse> {
+  const url = new URL("http://localhost:5000/api/v1/github/repositories");
 
-  url.searchParams.append("language", params.language)
-  url.searchParams.append("page", String(params.page ?? 1))
-  url.searchParams.append("per_page", String(params.perPage ?? GITHUB_DEAFULT_PER_PAGE))
-  
-  const res = await fetch(url.toString(), opts)
+  url.searchParams.append("language", params.language);
+  url.searchParams.append("page", String(params.page ?? 1));
+  url.searchParams.append(
+    "per_page",
+    String(params.perPage ?? GITHUB_DEAFULT_PER_PAGE),
+  );
+
+  const res = await fetch(url.toString(), opts);
   const json: GetGithubRepositoryResponseAPI = await res.json();
 
   return {
@@ -25,6 +35,6 @@ export async function getGithubRepositories(params: GetGithubRepositoriesAPIPara
       openIssuesCount: item.open_issues_count,
       hasIssues: item.has_issues,
       license: item.license,
-    }))
-  }
+    })),
+  };
 }

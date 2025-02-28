@@ -1,7 +1,13 @@
-export type ProgrammingLanguageID = "rust" | "java" | "javascript" | "go" | "python" | "ruby"
+export type ProgrammingLanguageID =
+  | "rust"
+  | "java"
+  | "javascript"
+  | "go"
+  | "python"
+  | "ruby";
 
 export interface ProgrammingLanguage {
-  id: ProgrammingLanguageID
+  id: ProgrammingLanguageID;
   name: string;
 }
 
