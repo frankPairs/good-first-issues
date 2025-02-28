@@ -10,14 +10,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      - name: Go to client directory
-        run: cd ./client
 
       - name: Install dependencies
+        working-directory: ./client
         run: npm ci
 
       - name: Run eslint
+        working-directory: ./client
         run: npm run lint
 
   formatting:
@@ -27,13 +26,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Go to client directory
-        run: cd ./client
-
       - name: Install dependencies
+        working-directory: ./client
         run: npm ci
 
       - name: Run formatter check
+        working-directory: ./client
         run: npm run formatting
 
 
