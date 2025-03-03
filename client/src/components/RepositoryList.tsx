@@ -20,6 +20,7 @@ function RepositoryList() {
     useInfiniteQuery(
       {
         initialPageParam: 1,
+        gcTime: 0,
         queryKey: ["GET_REPOSITORY_LIST", repositoriesParams],
         queryFn: async ({ pageParam, signal, client }) => {
           // As Github can return duplicate items on different pages, we have to clean them before showing them.
