@@ -22,7 +22,7 @@ function RepositoryList() {
         initialPageParam: 1,
         gcTime: 0,
         queryKey: ["GET_REPOSITORY_LIST", repositoriesParams],
-        queryFn: async ({ pageParam, signal, client }) => {
+        async queryFn({ pageParam, signal, client }) {
           // As Github can return duplicate items on different pages, we have to clean them before showing them.
           // In order to clean up them, we compare the latest result from the API with the one from the
           // cache, and remove the duplications.
