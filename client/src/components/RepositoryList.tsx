@@ -12,6 +12,7 @@ import type {
 import { queryClient } from "../stores/queryClient";
 import RepositoryCard from "./RepositoryCard";
 import InfiniteScroll from "react-infinite-scroll-component";
+
 /**
  * As Github can return duplicate items on different pages, we have to clean them before showing them.
  * In order to clean up them, we compare the latest result from the API with the one from the
