@@ -100,7 +100,11 @@ function RepositoryList() {
         next={fetchNextPage}
         hasMore={!isFetching && hasNextPage && repositories.length < totalCount}
         scrollThreshold={0.7}
-        loader={<h4>Loading...</h4>}
+        loader={
+          <div className={styles.containerSpinner}>
+            <SpinnerIcon />
+          </div>
+        }
         className={styles.infiniteScrollContainer}
       >
         {repositories.map((repository) => (
