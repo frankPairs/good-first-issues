@@ -12,6 +12,29 @@ import type {
 import { queryClient } from "../stores/queryClient";
 import RepositoryCard from "./RepositoryCard";
 import InfiniteScroll from "react-infinite-scroll-component";
+/**
+ * As Github can return duplicate items on different pages, we have to clean them before showing them.
+ * In order to clean up them, we compare the latest result from the API with the one from the
+ * cache, and remove the duplications.
+ */
+function getUniqueRepositories(
+  apiResult: GetGithubRepositoriesResponse,
+  cacheResult: InfiniteData<GetGithubRepositoriesResponse>,
+): GetGithubRepositoriesResponse {
+  const { pages } = cacheResult;
+  const pagesLength = pages.length;
+  const lastPage = pages[pagesLength - 1];
+  const lastPageRepositoryIds = new Set(
+    lastPage.repositories.map((repository) => repository.id),
+  );
+
+  return {
+    totalCount: apiResult.totalCount,
+    repositories: apiResult.repositories.filter(
+      (repository) => !lastPageRepositoryIds.has(repository.id),
+    ),
+  };
+}
 
 function RepositoryList() {
   const [repositoriesParams, setRepositoriesParams] =
@@ -23,10 +46,7 @@ function RepositoryList() {
         gcTime: 0,
         queryKey: ["GET_REPOSITORY_LIST", repositoriesParams],
         async queryFn({ pageParam, signal, client }) {
-          // As Github can return duplicate items on different pages, we have to clean them before showing them.
-          // In order to clean up them, we compare the latest result from the API with the one from the
-          // cache, and remove the duplications.
-          const result = await getGithubRepositories(
+          const apiResult = await getGithubRepositories(
             {
               language: repositoriesParams.filters.language,
               page: pageParam,
@@ -34,38 +54,16 @@ function RepositoryList() {
             },
             { signal },
           );
-          const cacheData = client.getQueryData<
+          const cacheResult = client.getQueryData<
             InfiniteData<GetGithubRepositoriesResponse>
           >(["GET_REPOSITORY_LIST", repositoriesParams]);
 
-          if (!cacheData) {
-            return result;
-          }
-
-          const { pages } = cacheData;
-          const pagesLength = pages.length;
-          const lastPage = pages[pagesLength - 1];
-          const lastPageRepositoryIds = new Set(
-            lastPage.repositories.map((repository) => repository.id),
-          );
-
-          return {
-            totalCount: result.totalCount,
-            repositories: result.repositories.filter(
-              (repository) => !lastPageRepositoryIds.has(repository.id),
-            ),
-          };
+          return !cacheResult
+            ? apiResult
+            : getUniqueRepositories(apiResult, cacheResult);
         },
-        getNextPageParam(_, pages) {
-          const pagesLength = pages.length;
-
-          return pagesLength + 1;
-        },
-        getPreviousPageParam(_, pages) {
-          const pagesLength = pages.length;
-
-          return pagesLength - 1;
-        },
+        getNextPageParam: (_, pages) => pages.length + 1,
+        getPreviousPageParam: (_, pages) => pages.length - 1,
       },
       queryClient,
     );
