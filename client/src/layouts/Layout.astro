@@ -90,6 +90,7 @@ import Header from "../components/Header.astro";
     max-width: 1200px;
     margin-right: auto;
     margin-left: auto;
+    box-sizing: border-box;
   }
   p,
   h1,
@@ -111,6 +112,23 @@ import Header from "../components/Header.astro";
   @media screen and (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
+    }
+  }
+
+  /* SMALL LAPTOPS AND TABLETS */
+  @media screen and (max-width: 1200px) {
+    main {
+      width: 100%;
+      margin: 0;
+      padding: 0 var(--spacing-40);
+    }
+  }
+
+  /* MOBILE */
+  @media screen and (max-width: 480px) {
+    main {
+      width: 100%;
+      padding: 0 var(--spacing-20);
     }
   }
 </style>

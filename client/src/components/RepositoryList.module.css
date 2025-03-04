@@ -16,6 +16,21 @@
   flex-direction: column;
   width: 100%;
   gap: var(--spacing-40);
-  align-items: center;
-  
+  align-items: center;  
+}
+
+/* SMALL LAPTOPS AND TABLETS */
+@media screen and (max-width: 1200px) {
+  .container {
+    display: flex;
+    flex-direction: column;
+    padding: 0 var(--spacing-40);
+  }
+}
+
+/* MOBILE */
+@media screen and (max-width: 480px) {
+  .container {
+    padding: 0;
+  }
 }

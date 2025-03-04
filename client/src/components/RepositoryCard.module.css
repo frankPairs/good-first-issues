@@ -80,3 +80,18 @@
   width: 24px;
   height: 24px;
 }
+
+/* SMALL LAPTOPS AND TABLETS */
+@media screen and (max-width: 1200px) {
+  .container {
+    width: 100%;
+    max-width: 750px;
+  }
+}
+
+/* MOBILE */
+@media screen and (max-width: 480px) {
+  .container {
+    padding: 0;
+  }
+}
