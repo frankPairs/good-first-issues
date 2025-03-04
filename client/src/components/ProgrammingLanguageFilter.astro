@@ -26,6 +26,7 @@ const programmingLanguages = await getProgrammingLanguages();
 <style>
   ul {
     display: flex;
+    box-sizing: border-box;
     flex-direction: row;
     list-style: none;
     padding: 0;
@@ -65,6 +66,21 @@ const programmingLanguages = await getProgrammingLanguages();
   li input[type="radio"]:checked + .input-label {
     background-color: rgba(var(--color-white), 0.2);
     cursor: default;
+  }
+
+  /* SMALL LAPTOPS AND TABLETS */
+  @media screen and (max-width: 1200px) {
+    ul {
+      flex-wrap: wrap;
+      padding: 0 var(--spacing-40);
+    }
+  }
+
+  /* MOBILE */
+  @media screen and (max-width: 480px) {
+    ul {
+      padding: 0;
+    }
   }
 </style>
 
