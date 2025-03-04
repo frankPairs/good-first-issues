@@ -1,0 +1,17 @@
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to { 
+    transform: rotate(360deg);
+  }
+}
+
+.container {
+  fill: rgba(var(--color-white), 0.7);
+  width: 36px;
+  height: 36px;
+  animation: rotate 1s infinite;
+  padding: var(--spacing-40) 0;
+}
+

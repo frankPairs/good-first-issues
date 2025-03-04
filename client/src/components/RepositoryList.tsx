@@ -12,6 +12,7 @@ import type {
 import { queryClient } from "../stores/queryClient";
 import RepositoryCard from "./RepositoryCard";
 import InfiniteScroll from "react-infinite-scroll-component";
+import SpinnerIcon from "./icons/SpinnerIcon";
 
 /**
  * As Github can return duplicate items on different pages, we have to clean them before showing them.
@@ -86,9 +87,9 @@ function RepositoryList() {
 
   if (isPending) {
     return (
-      <section className={styles.container}>
-        <p>Loading...</p>
-      </section>
+      <div className={styles.containerSpinner}>
+        <SpinnerIcon />
+      </div>
     );
   }
 
