@@ -36,7 +36,6 @@
   transition: ease-in-out color 300ms;
 }
 
-
 .headerAvatar {
   border-radius: 50%;
   height: var(--spacing-40);
