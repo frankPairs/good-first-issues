@@ -2,6 +2,7 @@ use std::{sync::Arc, time::Duration};
 
 use axum::Router;
 use bb8_redis::RedisConnectionManager;
+use tower::limit::ConcurrencyLimitLayer;
 use tower_http::cors::{Any, CorsLayer};
 
 use crate::{
@@ -11,6 +12,7 @@ use crate::{
 };
 
 const REDIS_POOL_CONNECTION_TIMEOUT: u64 = 10;
+const MAX_CONCURRENCY_LIMIT: usize = 100;
 
 pub struct App {
     pub router: Router,
@@ -43,6 +45,7 @@ impl App {
                 ProgrammingLanguageRouter::build(),
             )
             .with_state(state.clone())
+            .layer(ConcurrencyLimitLayer::new(MAX_CONCURRENCY_LIMIT))
             .layer(CorsLayer::new().allow_origin(Any));
 
         Ok(App { router })
