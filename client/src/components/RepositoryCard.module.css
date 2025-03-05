@@ -15,6 +15,10 @@
   background-color: rgba(var(--color-bg-gray), 0.1);
 }
 
+.container:hover .headerTitle {
+  color: rgba(var(--color-white), 1);
+}
+
 .header {
   border-bottom: 1px solid rgba(var(--color-white), 0.3);
 }
@@ -30,10 +34,6 @@
   color: rgba(var(--color-white), 0.7);
   font-size: var(--font-size-24);
   transition: ease-in-out color 300ms;
-}
-
-.headerTitle:hover {
-  color: rgba(var(--color-white), 1);
 }
 
 .headerAvatar {
