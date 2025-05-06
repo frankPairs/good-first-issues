@@ -44,5 +44,5 @@ pub async fn get_repository_good_first_issues(
         .get_repository_good_first_issues(&path_params, &params)
         .await?;
 
-    return Ok((StatusCode::OK, Json(res)).into_response());
+    Ok((StatusCode::OK, Json(res)).into_response())
 }

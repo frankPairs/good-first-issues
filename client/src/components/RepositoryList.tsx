@@ -1,6 +1,6 @@
 import { subscribeKeys } from "nanostores";
 import { useEffect, useState } from "react";
-import { useInfiniteQuery, type InfiniteData } from "@tanstack/react-query";
+import { type InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
 
 import { $repositoriesParamsStore, initialState } from "../stores/repositories";
 import { getGithubRepositories } from "../requests/repositories";
@@ -13,6 +13,8 @@ import { queryClient } from "../stores/queryClient";
 import RepositoryCard from "./RepositoryCard";
 import InfiniteScroll from "react-infinite-scroll-component";
 import SpinnerIcon from "./icons/SpinnerIcon";
+import ErrorSection from "./ErrorSection";
+import type { FetchError } from "../errors";
 
 /**
  * As Github can return duplicate items on different pages, we have to clean them before showing them.
@@ -41,7 +43,7 @@ function getUniqueRepositories(
 function RepositoryList() {
   const [repositoriesParams, setRepositoriesParams] =
     useState<GetGithubRepositoriesParams>(initialState);
-  const { data, isPending, isFetching, hasNextPage, fetchNextPage } =
+  const { data, error, isLoading, isFetching, hasNextPage, fetchNextPage } =
     useInfiniteQuery(
       {
         initialPageParam: 1,
@@ -85,11 +87,19 @@ function RepositoryList() {
     return () => unsubscribe();
   }, []);
 
-  if (isPending) {
+  if (isLoading) {
     return (
-      <div className={styles.containerSpinner}>
+      <section className={styles.containerSpinner}>
         <SpinnerIcon />
-      </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className={styles.containeError}>
+        <ErrorSection error={error as FetchError} />;
+      </section>
     );
   }
 
