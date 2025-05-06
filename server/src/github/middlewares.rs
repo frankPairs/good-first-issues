@@ -96,10 +96,7 @@ impl GithubRateLimitError {
         if let Some(value) = headers.get("retry-after") {
             let parsed_value = value.to_str().unwrap_or("");
 
-            retry_after = match String::from(parsed_value).parse::<i64>() {
-                Ok(n) => Some(n),
-                Err(_) => None,
-            };
+            retry_after = String::from(parsed_value).parse::<i64>().ok();
         }
 
         if let Some(value) = headers.get("x-ratelimit-remaining") {
