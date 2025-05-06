@@ -102,19 +102,13 @@ impl GithubRateLimitError {
         if let Some(value) = headers.get("x-ratelimit-remaining") {
             let parsed_value = value.to_str().unwrap_or("");
 
-            ratelimit_remaining = match String::from(parsed_value).parse::<i64>() {
-                Ok(n) => Some(n),
-                Err(_) => None,
-            };
+            ratelimit_remaining = String::from(parsed_value).parse::<i64>().ok();
         }
 
         if let Some(value) = headers.get("x-ratelimit-reset") {
             let parsed_value = value.to_str().unwrap_or("");
 
-            ratelimit_reset = match String::from(parsed_value).parse::<i64>() {
-                Ok(n) => Some(n),
-                Err(_) => None,
-            };
+            ratelimit_reset = String::from(parsed_value).parse::<i64>().ok();
         }
 
         GithubRateLimitError {
