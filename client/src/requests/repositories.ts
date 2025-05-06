@@ -3,6 +3,7 @@ import type {
   GetGithubRepositoriesAPIParams,
   GetGithubRepositoriesResponse,
 } from "../models/repositories";
+import { FetchError } from "../errors";
 
 const GITHUB_DEAFULT_PER_PAGE = 50;
 
@@ -20,6 +21,11 @@ export async function getGithubRepositories(
   );
 
   const res = await fetch(url.toString(), opts);
+
+  if (!res.ok) {
+    throw new FetchError(res.statusText, res.status);
+  }
+
   const json: GetGithubRepositoryResponseAPI = await res.json();
 
   return {
