@@ -1,6 +1,6 @@
 use reqwest::{header, Client, Url};
 
-use crate::{config::GithubSettings, errors::RustGoodFirstIssuesError};
+use crate::{config::GithubSettings, errors::GoodFirstIssuesError};
 
 use super::models::{
     GetGithubRepositoriesParams, GetGithubRepositoriesResponse,
@@ -25,7 +25,7 @@ pub struct GithubHttpClient {
 }
 
 impl GithubHttpClient {
-    pub fn new(settings: GithubSettings) -> Result<Self, RustGoodFirstIssuesError> {
+    pub fn new(settings: GithubSettings) -> Result<Self, GoodFirstIssuesError> {
         let mut headers = header::HeaderMap::new();
 
         headers.insert("Accept", "application/vnd.github+json".parse().unwrap());
@@ -39,10 +39,10 @@ impl GithubHttpClient {
         let http_client: Client = Client::builder()
             .default_headers(headers)
             .build()
-            .map_err(RustGoodFirstIssuesError::Reqwest)?;
+            .map_err(GoodFirstIssuesError::Reqwest)?;
 
         let base_url =
-            Url::parse(&settings.get_api_url()).map_err(RustGoodFirstIssuesError::ParseUrl)?;
+            Url::parse(&settings.get_api_url()).map_err(GoodFirstIssuesError::ParseUrl)?;
 
         Ok(Self {
             http_client,
@@ -54,11 +54,11 @@ impl GithubHttpClient {
     pub async fn get_repositories(
         &self,
         params: &GetGithubRepositoriesParams,
-    ) -> Result<GetGithubRepositoriesResponse, RustGoodFirstIssuesError> {
+    ) -> Result<GetGithubRepositoriesResponse, GoodFirstIssuesError> {
         let mut url = self
             .base_url
             .join("/search/repositories?")
-            .map_err(RustGoodFirstIssuesError::ParseUrl)?;
+            .map_err(GoodFirstIssuesError::ParseUrl)?;
 
         url.query_pairs_mut()
             .append_pair(
@@ -78,7 +78,7 @@ impl GithubHttpClient {
             .get(url)
             .send()
             .await
-            .map_err(RustGoodFirstIssuesError::Reqwest)?;
+            .map_err(GoodFirstIssuesError::Reqwest)?;
 
         if !response.status().is_success() {
             return Err(self.parse_error_from_response(response).await);
@@ -87,7 +87,7 @@ impl GithubHttpClient {
         let json: SearchGithubRepositoriesResponseAPI = response
             .json()
             .await
-            .map_err(RustGoodFirstIssuesError::Reqwest)?;
+            .map_err(GoodFirstIssuesError::Reqwest)?;
 
         Ok(GetGithubRepositoriesResponse {
             total_count: json.total_count,
@@ -118,14 +118,14 @@ impl GithubHttpClient {
         &self,
         path_params: &GetGithubRepositoryGoodFirstIssuesPathParams,
         params: &GetGithubRepositoryGoodFirstIssuesParams,
-    ) -> Result<GetGithubRepositoryGoodFirstIssuesResponse, RustGoodFirstIssuesError> {
+    ) -> Result<GetGithubRepositoryGoodFirstIssuesResponse, GoodFirstIssuesError> {
         let mut url = self
             .base_url
             .join(&format!(
                 "/repos/{}/{}/issues?",
                 params.owner, path_params.repo
             ))
-            .map_err(RustGoodFirstIssuesError::ParseUrl)?;
+            .map_err(GoodFirstIssuesError::ParseUrl)?;
 
         url.query_pairs_mut()
             .append_pair("labels", "good first issue")
@@ -142,7 +142,7 @@ impl GithubHttpClient {
             .get(url)
             .send()
             .await
-            .map_err(RustGoodFirstIssuesError::Reqwest)?;
+            .map_err(GoodFirstIssuesError::Reqwest)?;
 
         if !response.status().is_success() {
             return Err(self.parse_error_from_response(response).await);
@@ -151,7 +151,7 @@ impl GithubHttpClient {
         let json: Vec<GithubIssueAPI> = response
             .json()
             .await
-            .map_err(RustGoodFirstIssuesError::Reqwest)?;
+            .map_err(GoodFirstIssuesError::Reqwest)?;
 
         Ok(GetGithubRepositoryGoodFirstIssuesResponse {
             items: json
@@ -175,19 +175,16 @@ impl GithubHttpClient {
         })
     }
 
-    async fn parse_error_from_response(
-        &self,
-        response: reqwest::Response,
-    ) -> RustGoodFirstIssuesError {
+    async fn parse_error_from_response(&self, response: reqwest::Response) -> GoodFirstIssuesError {
         let status_code = response.status();
         let headers = response.headers().clone();
         let result: Result<GithubApiErrorPayload, reqwest::Error> = response.json().await;
 
         match result {
             Ok(error_payload) => {
-                RustGoodFirstIssuesError::GithubAPI(status_code, headers, error_payload.message)
+                GoodFirstIssuesError::GithubAPI(status_code, headers, error_payload.message)
             }
-            Err(err) => RustGoodFirstIssuesError::Reqwest(err),
+            Err(err) => GoodFirstIssuesError::Reqwest(err),
         }
     }
 }

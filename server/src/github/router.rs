@@ -5,11 +5,8 @@ use crate::{
 use axum::{handler::Handler, middleware, routing, Router};
 use std::sync::Arc;
 
-use super::{
-    middlewares::rate_limit_middleware,
-    models::{GetGithubRepositoriesResponse, GetGithubRepositoryGoodFirstIssuesResponse},
-};
-use crate::axum_redis::middlewares::redis_cache_middleware;
+use super::middlewares::rate_limit_middleware;
+use crate::cache::middlewares::cache_middleware;
 
 pub struct GithubRepositoryRouter;
 
@@ -20,16 +17,13 @@ impl GithubRepositoryRouter {
                 "/repositories",
                 routing::get(get_repositories).layer(middleware::from_fn_with_state(
                     state.clone(),
-                    redis_cache_middleware::<GetGithubRepositoriesResponse>,
+                    cache_middleware,
                 )),
             )
             .route(
                 "/repositories/:repo/good-first-issues",
                 routing::get(get_repository_good_first_issues.layer(
-                    middleware::from_fn_with_state(
-                        state.clone(),
-                        redis_cache_middleware::<GetGithubRepositoryGoodFirstIssuesResponse>,
-                    ),
+                    middleware::from_fn_with_state(state.clone(), cache_middleware),
                 )),
             )
             .route_layer(middleware::from_fn_with_state(

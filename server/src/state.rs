@@ -1,10 +1,16 @@
-use bb8::Pool;
-use bb8_redis::RedisConnectionManager;
+use chrono::{DateTime, Utc};
+use moka::future::Cache;
 
 use crate::config::GithubSettings;
 
 #[derive(Clone, Debug)]
+pub struct CacheValue {
+    pub data: Vec<u8>,
+    pub last_modified: DateTime<Utc>,
+}
+
+#[derive(Clone, Debug)]
 pub struct AppState {
     pub github_settings: GithubSettings,
-    pub redis_pool: Pool<RedisConnectionManager>,
+    pub cache: Cache<String, CacheValue>,
 }

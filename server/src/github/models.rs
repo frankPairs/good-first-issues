@@ -1,6 +1,5 @@
 use core::fmt;
 
-use redis_macros::FromRedisValue;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]
@@ -117,7 +116,7 @@ pub struct GetGithubRepositoriesParams {
     pub language: ProgrammingLanguage,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, FromRedisValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GetGithubRepositoriesResponse {
     pub total_count: u32,
     pub items: Vec<GithubRepository>,
@@ -135,7 +134,7 @@ pub struct GetGithubRepositoryGoodFirstIssuesPathParams {
     pub repo: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, FromRedisValue)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GetGithubRepositoryGoodFirstIssuesResponse {
     pub items: Vec<GithubIssue>,
 }

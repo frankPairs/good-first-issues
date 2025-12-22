@@ -30,7 +30,6 @@ impl Display for SettingsError {
 pub struct Settings {
     pub application: ApplicationSettings,
     pub github: GithubSettings,
-    pub redis: RedisSettings,
 }
 
 #[derive(Clone, Deserialize, Debug)]
@@ -92,26 +91,12 @@ impl GithubSettings {
     }
 }
 
-#[derive(Clone, Deserialize, Debug)]
-pub struct RedisSettings {
-    pub url: String,
-}
-
-impl RedisSettings {
-    pub fn new() -> Result<Self, SettingsError> {
-        let url = get_env_value("REDIS_URL")?;
-
-        Ok(RedisSettings { url })
-    }
-}
-
 pub fn get_app_settings() -> Result<Settings, SettingsError> {
     dotenv::dotenv().map_err(|_| SettingsError::EnvironmentLoad)?;
 
     Ok(Settings {
         application: ApplicationSettings::new()?,
         github: GithubSettings::new()?,
-        redis: RedisSettings::new()?,
     })
 }
 

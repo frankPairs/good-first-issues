@@ -7,7 +7,7 @@ use axum::{
 };
 use std::sync::Arc;
 
-use crate::errors::RustGoodFirstIssuesError;
+use crate::errors::GoodFirstIssuesError;
 use crate::github::models::GetGithubRepositoriesParams;
 use crate::state::AppState;
 
@@ -20,7 +20,7 @@ use super::models::{
 pub async fn get_repositories(
     state: State<Arc<AppState>>,
     params: Query<GetGithubRepositoriesParams>,
-) -> Result<Response, RustGoodFirstIssuesError> {
+) -> Result<Response, GoodFirstIssuesError> {
     let params = params.0;
     let github_client = GithubHttpClient::new(state.github_settings.clone())?;
 
@@ -34,7 +34,7 @@ pub async fn get_repository_good_first_issues(
     state: State<Arc<AppState>>,
     path: Path<GetGithubRepositoryGoodFirstIssuesPathParams>,
     params: Query<GetGithubRepositoryGoodFirstIssuesParams>,
-) -> Result<Response, RustGoodFirstIssuesError> {
+) -> Result<Response, GoodFirstIssuesError> {
     let params = params.0;
     let path_params = path.0;
 

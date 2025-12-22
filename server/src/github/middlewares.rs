@@ -7,13 +7,14 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use chrono::{DateTime, Utc};
-use redis::{AsyncCommands, JsonAsyncCommands};
-use redis_macros::FromRedisValue;
 use serde::{Deserialize, Serialize};
 
-use crate::{errors::RustGoodFirstIssuesError, state::AppState};
+use crate::{
+    errors::GoodFirstIssuesError,
+    state::{AppState, CacheValue},
+};
 
-const REDIS_KEY_DELIMITER: &str = ":";
+const CACHE_KEY_DELIMITER: &str = ":";
 const DEFAULT_RATE_LIMIT_EXP: i64 = 600;
 
 pub async fn rate_limit_middleware(
@@ -21,27 +22,18 @@ pub async fn rate_limit_middleware(
     original_uri: OriginalUri,
     request: Request,
     next: Next,
-) -> Result<Response, RustGoodFirstIssuesError> {
-    let redis_conn_result = state.redis_pool.get().await;
-
-    if redis_conn_result.is_err() {
-        let res = next.run(request).await;
-
-        return Ok(res);
-    }
-
+) -> Result<Response, GoodFirstIssuesError> {
     let formatted_path = original_uri
         .path()
         .to_string()
-        .replace("/", REDIS_KEY_DELIMITER)
+        .replace("/", CACHE_KEY_DELIMITER)
         .replacen(":", "", 1);
-    // To build the Redis key of any rate limit error, we just use the url path, without taking into account
-    // query or route params. This is because a rate limit error is
-    let redis_key = format!("errors:rate_limit:{}", formatted_path);
-    let mut redis_conn = redis_conn_result.unwrap();
+    // To build the cache key of any rate limit error, we just use the url path, without taking into account
+    // query or route params. This is because a rate limit error does not depend on them.
+    let cache_key = format!("errors:rate_limit:{}", formatted_path);
 
-    // If a request with the same URI already exists on Redis, we just return a 429 error
-    if redis_conn.exists(&redis_key).await.unwrap_or(false) {
+    // If a request with the same URI already exists on the cache, we just return a 429 error
+    if state.cache.contains_key(&cache_key) {
         return Ok((StatusCode::TOO_MANY_REQUESTS, "Limit of requests exceeded").into_response());
     }
 
@@ -62,22 +54,22 @@ pub async fn rate_limit_middleware(
         return Ok(res);
     }
 
-    // It saves the URI within Redis, so next time we won't make any request to Github API
-    redis_conn
-        .json_set::<&str, &str, GithubRateLimitError, Option<String>>(&redis_key, "$", &error)
-        .await
-        .map_err(RustGoodFirstIssuesError::Redis)?;
-
-    // It sets the expiration time to the Redis key
-    redis_conn
-        .expire::<&str, bool>(&redis_key, error.get_expiration_time())
-        .await
-        .map_err(RustGoodFirstIssuesError::Redis)?;
+    // It saves the URI within the cache, so next time we won't make any request to Github API
+    state
+        .cache
+        .insert(
+            cache_key,
+            CacheValue {
+                data: vec![],
+                last_modified: Utc::now(),
+            },
+        )
+        .await;
 
     Ok((StatusCode::TOO_MANY_REQUESTS, res_headers).into_response())
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, FromRedisValue)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct GithubRateLimitError {
     // The time in seconds that you should wait before making the next request
     retry_after: Option<i64>,

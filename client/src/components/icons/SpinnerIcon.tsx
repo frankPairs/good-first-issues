@@ -1,4 +1,4 @@
-import styles from "./SpinnerICon.module.css";
+import styles from "./SpinnerIcon.module.css";
 
 function SpinnerIcon() {
   return (

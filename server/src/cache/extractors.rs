@@ -1,4 +1,4 @@
-//! ExtractRedisKey is an Axum extractor that extracts a Redis key from the request path and query parameters. This extractor is used within the RedisCacheLayer to generate a key for the cache.
+//! ExtratCache key is an Axum extractor that creates a cache key from the request path and query parameters.
 //!
 //! The key is constructed by concatenating the path and query parameters. Query parameters are sorted alphabetically in order to ensure the same query parameters result in the same key,
 //! independently of the order they were provided in the request.
@@ -24,12 +24,12 @@ use axum::{
 
 use itertools::{sorted, Itertools};
 
-const REDIS_KEY_DELIMITER: &str = ":";
+const CACHE_KEY_DELIMITER: &str = ":";
 
-pub struct ExtractRedisKey(pub String);
+pub struct ExtractCacheKey(pub String);
 
 #[async_trait]
-impl<S> FromRequestParts<S> for ExtractRedisKey
+impl<S> FromRequestParts<S> for ExtractCacheKey
 where
     S: Send + Sync,
 {
@@ -41,25 +41,25 @@ where
         let formatted_path = original_uri
             .path()
             .to_string()
-            .replace("/", REDIS_KEY_DELIMITER);
+            .replace("/", CACHE_KEY_DELIMITER);
         let query_params = original_uri.query().unwrap_or("");
-        let sorted_params = sorted(query_params.split("&")).join(REDIS_KEY_DELIMITER);
+        let sorted_params = sorted(query_params.split("&")).join(CACHE_KEY_DELIMITER);
 
-        let mut redis_key = [formatted_path, sorted_params].join(REDIS_KEY_DELIMITER);
+        let mut cache_key = [formatted_path, sorted_params].join(CACHE_KEY_DELIMITER);
 
-        if redis_key.starts_with(REDIS_KEY_DELIMITER) {
-            redis_key.remove(0);
+        if cache_key.starts_with(CACHE_KEY_DELIMITER) {
+            cache_key.remove(0);
         }
 
-        if redis_key.ends_with(REDIS_KEY_DELIMITER) {
-            redis_key.pop();
+        if cache_key.ends_with(CACHE_KEY_DELIMITER) {
+            cache_key.pop();
         }
 
-        if redis_key.is_empty() {
+        if cache_key.is_empty() {
             return Err((StatusCode::BAD_REQUEST, "Invalid key"));
         }
 
-        Ok(ExtractRedisKey(redis_key))
+        Ok(ExtractCacheKey(cache_key))
     }
 }
 
@@ -76,14 +76,14 @@ mod tests {
 
     use super::*;
 
-    async fn handler_with_extract_redis_key(key: ExtractRedisKey) -> String {
+    async fn handler_with_extract_cache_key(key: ExtractCacheKey) -> String {
         key.0
     }
 
     fn app() -> Router {
         Router::new()
-            .route("/api/v1/test", get(handler_with_extract_redis_key))
-            .route("/", get(handler_with_extract_redis_key))
+            .route("/api/v1/test", get(handler_with_extract_cache_key))
+            .route("/", get(handler_with_extract_cache_key))
     }
 
     #[tokio::test]
@@ -157,7 +157,7 @@ mod tests {
         fn app_with_nested_routes() -> Router {
             Router::new().nest(
                 "/api/v1",
-                Router::new().route("/test", get(handler_with_extract_redis_key)),
+                Router::new().route("/test", get(handler_with_extract_cache_key)),
             )
         }
 

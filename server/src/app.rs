@@ -1,7 +1,9 @@
-use std::{sync::Arc, time::Duration};
+use std::sync::Arc;
 
+use anyhow::Context;
 use axum::Router;
-use bb8_redis::RedisConnectionManager;
+use chrono::Duration;
+use moka::future::Cache;
 use tower::limit::ConcurrencyLimitLayer;
 use tower_http::cors::{Any, CorsLayer};
 
@@ -11,8 +13,9 @@ use crate::{
     programing_languages::router::ProgrammingLanguageRouter, state::AppState,
 };
 
-const REDIS_POOL_CONNECTION_TIMEOUT: u64 = 10;
 const MAX_CONCURRENCY_LIMIT: usize = 100;
+const MAX_CACHE_CAPACITY: u64 = 10_000;
+const CACHE_TIME_TO_LIVE: i64 = 600;
 
 pub struct App {
     pub router: Router,
@@ -21,18 +24,18 @@ pub struct App {
 impl App {
     pub async fn new(settings: Settings) -> Result<App, anyhow::Error> {
         let github_settings = settings.github.clone();
-        let redis_settings = settings.redis.clone();
 
-        let redis_manager = RedisConnectionManager::new(redis_settings.url).unwrap();
-        let redis_pool = bb8::Pool::builder()
-            .connection_timeout(Duration::from_secs(REDIS_POOL_CONNECTION_TIMEOUT))
-            .build(redis_manager)
-            .await
-            .expect("Failed to create Redis connection pool");
+        let time_to_live = Duration::seconds(CACHE_TIME_TO_LIVE)
+            .to_std()
+            .context("Invalid time to live value")?;
+        let cache = Cache::builder()
+            .max_capacity(MAX_CACHE_CAPACITY)
+            .time_to_live(time_to_live)
+            .build();
 
         let state = Arc::new(AppState {
             github_settings,
-            redis_pool,
+            cache,
         });
         let router = Router::new()
             .nest("/", HealthCheckRouter::build())
