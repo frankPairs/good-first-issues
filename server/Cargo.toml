@@ -24,6 +24,7 @@ futures-util = "0.3.30"
 itertools = "0.14.0"
 http-body-util = "0.1.2"
 moka = { version = "0.12.11", features = ["future"] }
+thiserror = "2.0.17"
 
 
 [lints.clippy]

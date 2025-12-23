@@ -2,48 +2,23 @@ use axum::{
     http::{HeaderMap, HeaderValue, StatusCode},
     response::{IntoResponse, Response},
 };
-use std::error::Error;
+use thiserror::Error;
 
 const GITHUB_RATE_LIMIT_HEADERS: [&str; 3] =
     ["retry-after", "x-ratelimit-remaining", "x-ratelimit-reset"];
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum GoodFirstIssuesError {
+    #[error("Reqwest Error = {0}")]
     Reqwest(reqwest::Error),
+    #[error("GithubAPI Error = {0}:{2}")]
     GithubAPI(StatusCode, HeaderMap<HeaderValue>, String),
+    #[error("ParseUrl Error = {0}")]
     ParseUrl(url::ParseError),
+    #[error("Axum Error = {0}")]
     Axum(axum::Error),
-    Unknown(String),
-}
-
-impl std::fmt::Display for GoodFirstIssuesError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            GoodFirstIssuesError::Reqwest(err) => {
-                tracing::error!("ReqwestError url = {:?}", err.url());
-                tracing::error!("ReqwestError status = {:?}", err.status());
-                tracing::error!("ReqwestError source = {:?}", err.source());
-
-                write!(f, "ReqwestError error: {}", err)
-            }
-            GoodFirstIssuesError::ParseUrl(err) => {
-                write!(f, "Parse url error: {}", err)
-            }
-            GoodFirstIssuesError::GithubAPI(status_code, _, message) => {
-                write!(f, "Github API error {}: {}", status_code, message)
-            }
-            GoodFirstIssuesError::Axum(err) => {
-                let error_msg = format!("Axum internal error: {}", err);
-
-                write!(f, "{}", error_msg)
-            }
-            GoodFirstIssuesError::Unknown(err) => {
-                let error_msg = format!("Unknown error : {}", err);
-
-                write!(f, "{}", error_msg)
-            }
-        }
-    }
+    #[error("Cache error = {0}")]
+    Cache(String),
 }
 
 impl IntoResponse for GoodFirstIssuesError {

@@ -75,15 +75,14 @@ fn get_cache_headers(
         Some(v) => {
             let max_age = HeaderValue::from_str(&format!("max-age={}", CACHE_EXPIRATION_TIME))
                 .map_err(|_| {
-                    GoodFirstIssuesError::Unknown("Invalid Cache-Control header value".to_string())
+                    GoodFirstIssuesError::Cache("Invalid Cache-Control header value".to_string())
                 })?;
             let x_cache = HeaderValue::from_str("HIT").map_err(|_| {
-                GoodFirstIssuesError::Unknown("Invalid X-Cache header value".to_string())
+                GoodFirstIssuesError::Cache("Invalid X-Cache header value".to_string())
             })?;
             let age = Utc::now() - v.last_modified;
-            let age = HeaderValue::from_str(&age.num_seconds().to_string()).map_err(|_| {
-                GoodFirstIssuesError::Unknown("Invalid Age header value".to_string())
-            })?;
+            let age = HeaderValue::from_str(&age.num_seconds().to_string())
+                .map_err(|_| GoodFirstIssuesError::Cache("Invalid Age header value".to_string()))?;
 
             headers.insert("Cache-Control", max_age);
             headers.insert("X-Cache", x_cache);
@@ -92,14 +91,13 @@ fn get_cache_headers(
         None => {
             let max_age = HeaderValue::from_str(&format!("max-age={}", CACHE_EXPIRATION_TIME))
                 .map_err(|_| {
-                    GoodFirstIssuesError::Unknown("Invalid Cache-Control header value".to_string())
+                    GoodFirstIssuesError::Cache("Invalid Cache-Control header value".to_string())
                 })?;
             let x_cache = HeaderValue::from_str("MISS").map_err(|_| {
-                GoodFirstIssuesError::Unknown("Invalid X-Cache header value".to_string())
+                GoodFirstIssuesError::Cache("Invalid X-Cache header value".to_string())
             })?;
-            let age = HeaderValue::from_str(&0.to_string()).map_err(|_| {
-                GoodFirstIssuesError::Unknown("Invalid Age header value".to_string())
-            })?;
+            let age = HeaderValue::from_str(&0.to_string())
+                .map_err(|_| GoodFirstIssuesError::Cache("Invalid Age header value".to_string()))?;
 
             headers.insert("Cache-Control", max_age);
             headers.insert("X-Cache", x_cache);
