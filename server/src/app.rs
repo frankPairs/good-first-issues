@@ -1,17 +1,13 @@
 use std::sync::Arc;
 
 use anyhow::Context;
-use axum::Router;
+use axum::{middleware, routing, Router};
 use chrono::Duration;
 use moka::future::Cache;
 use tower::limit::ConcurrencyLimitLayer;
 use tower_http::cors::{Any, CorsLayer};
 
-use crate::{
-    config::Settings, github::router::GithubRepositoryRouter,
-    health_check::router::HealthCheckRouter,
-    programing_languages::router::ProgrammingLanguageRouter, state::AppState,
-};
+use crate::{cache, config::Settings, github, health_check, programing_languages, state::AppState};
 
 const MAX_CONCURRENCY_LIMIT: usize = 100;
 const MAX_CACHE_CAPACITY: u64 = 10_000;
@@ -37,16 +33,41 @@ impl App {
             github_settings,
             cache,
         });
+
+        let github_router = Router::new()
+            .route(
+                "/repositories",
+                routing::get(github::handlers::get_repositories).layer(
+                    middleware::from_fn_with_state(
+                        state.clone(),
+                        cache::middlewares::cache_middleware,
+                    ),
+                ),
+            )
+            .route(
+                "/repositories/:repo/good-first-issues",
+                routing::get(github::handlers::get_repository_good_first_issues).layer(
+                    middleware::from_fn_with_state(
+                        state.clone(),
+                        cache::middlewares::cache_middleware,
+                    ),
+                ),
+            )
+            .route_layer(middleware::from_fn_with_state(
+                state.clone(),
+                github::middlewares::rate_limit_middleware,
+            ));
+
         let router = Router::new()
-            .nest("/", HealthCheckRouter::build())
-            .nest(
-                "/api/v1/github",
-                GithubRepositoryRouter::build(state.clone()),
+            .route(
+                "/healthcheck",
+                routing::get(health_check::handlers::health_check),
             )
-            .nest(
+            .route(
                 "/api/v1/programming-languages",
-                ProgrammingLanguageRouter::build(),
+                routing::get(programing_languages::handlers::get_programming_languages),
             )
+            .nest("/api/v1/github", github_router)
             .with_state(state.clone())
             .layer(ConcurrencyLimitLayer::new(MAX_CONCURRENCY_LIMIT))
             .layer(CorsLayer::new().allow_origin(Any));

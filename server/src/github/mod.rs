@@ -1,5 +1,4 @@
 pub mod client;
-mod handlers;
-mod middlewares;
+pub mod handlers;
+pub mod middlewares;
 pub mod models;
-pub mod router;
